@@ -242,9 +242,10 @@ LinkedList LinkedList::reverse() const
 	return result;
 }
 
-LinkedList LinkedList::getReverseList() const
-{
-	return LinkedList();
+LinkedList LinkedList::getReverseList() const{
+    LinkedList result = *this;
+    result.reverse();
+    return result;
 }
 
 size_t LinkedList::size() const
