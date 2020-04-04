@@ -1,9 +1,14 @@
 #pragma once
 
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+#include <limits>
 // стратегия изменения capacity
 enum class ResizeStrategy {
-	Additive,
-	Multiplicative
+	Additive,// capacity = OldCapacity + delta
+	Multiplicative // capacity = coef * OldCapacity
 };
 
 // тип значений в векторе
@@ -13,15 +18,21 @@ using ValueType = double;
 class MyVector
 {
 public:
-	MyVector(size_t size = 0, ResizeStrategy = ResizeStrategy::Multiplicative, float coef = 1.5f);
-	MyVector(size_t size, ValueType value, ResizeStrategy = ResizeStrategy::Multiplicative, float coef = 1.5f);
+	MyVector(size_t size = 0,
+	        ResizeStrategy = ResizeStrategy::Multiplicative,
+	        float coef = 1.5f);
+	MyVector(size_t size, ValueType value,
+	        ResizeStrategy = ResizeStrategy::Multiplicative,
+	        float coef = 1.5f);//Заполнить иниц-ый вектор value
 	
 	MyVector(const MyVector& copy);
 	MyVector& operator=(const MyVector& copy);
 
-	~MyVector();
+    //Конструктор перемещения
+    MyVector(MyVector&& moveVec) noexcept;
+    MyVector& operator=(MyVector&& moveVec) noexcept;
 
-	// для умненьких — реализовать конструктор и оператор для перемещения
+	~MyVector();
 
 	size_t capacity() const;
 	size_t size() const;
@@ -63,9 +74,19 @@ public:
 
 	// очистка вектора, без изменения capacity
 	void clear();
+
+	/*Вспомогательные методы работы с памятью*/
+protected:
+    //Изменяет _data в соответсвии с новым _capacity
+    void resize_data(size_t newCap);
+    /*Считает новый _capacity с учётом политики выделения
+    памяти и loadFactor-а*/
+    size_t capCalc();
 private:
 	ValueType* _data;
 	size_t _size;
 	size_t _capacity;
+	ResizeStrategy _strategy;
+	float _coef;
 };
 
