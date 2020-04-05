@@ -64,10 +64,11 @@ LinkedList& LinkedList::operator=(const LinkedList& copyList){
 	if (this == &copyList) {
 		return *this;
 	}
-	LinkedList bufList(copyList);
-	this->_size = bufList._size;
-	this->_head = bufList._head;
-
+	Node* tmp_head = new Node(copyList._head->value,
+	        copyList._head->next);
+	forceNodeDelete(_head);
+	this->_head = tmp_head;
+	this->_size = copyList._size;
 	return *this;
 }
 
