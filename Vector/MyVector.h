@@ -12,6 +12,11 @@ enum class ResizeStrategy {
 	Multiplicative // capacity = coef * OldCapacity
 };
 
+//определение сортировки для sortedSquares()
+enum class SortedStrategy{
+    Increase,
+    Decrease
+};
 // тип значений в векторе
 // потом будет заменен на шаблон
 using ValueType = double;
@@ -31,6 +36,7 @@ public:
         bool operator==(VecIterator const& other) const; //need for BOOST_FOREACH
         typename VecIterator::reference operator*() const;
         VecIterator& operator++();
+        VecIterator& operator--();
     private:
         ValueType* p;
     };
@@ -103,6 +109,7 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
+
     /*Вспомогательные методы работы с памятью*/
 protected:
     /*Считает новый _capacity с учётом политики выделения
@@ -118,3 +125,4 @@ private:
 	float _coef;
 };
 
+MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy);

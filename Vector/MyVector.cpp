@@ -353,6 +353,24 @@ MyVector::VecIterator &MyVector::VecIterator::operator++()
     ++p;
     return *this;
 }
+MyVector::VecIterator &MyVector::VecIterator::operator--()
+{
+    --p;
+    return *this;
+}
 
 
-
+MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy){
+    MyVector res_vec(vec.size());
+    if(strategy == SortedStrategy::Decrease){
+        for(long long i = 0; i < vec.size(); ++i){
+            res_vec[i] = pow(vec[vec.size() - i - 1], 2);
+        }
+    }
+    else if(strategy == SortedStrategy::Increase){
+        for(long long i = 0; i < vec.size(); ++i){
+            res_vec[i] = pow(vec[i], 2);
+        }
+    }
+    return res_vec;
+}
