@@ -81,7 +81,7 @@ protected:
     void resize_data(size_t newCap);
     /*Считает новый _capacity с учётом политики выделения
     памяти и loadFactor-а*/
-    size_t capCalc();
+    size_t capCalc(bool forced_increase = false);
 private:
 	ValueType* _data;
 	size_t _size;

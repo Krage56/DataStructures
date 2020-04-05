@@ -138,8 +138,9 @@ void MyVector::pushBack(const ValueType &value) {
     ++_size;
 }
 
-size_t MyVector::capCalc() {
-    return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon() ?
+size_t MyVector::capCalc(bool forced_increase) {
+    return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()
+    || forced_increase ?
            _strategy == ResizeStrategy::Multiplicative?
         std::round(_capacity * _coef): _capacity + _coef :
            _strategy == ResizeStrategy::Multiplicative?
@@ -166,11 +167,46 @@ void MyVector::insert(const size_t i, const ValueType &value) {
             ++_size;
         }
         else{
-            for(size_t j = _size - 1; j >= i; j--)
+            //Без этого касатавания будет больно
+            for(long long j = _size - 1; j >= (const long long)i; --j)
                 _data[j + 1] = _data[j];
             _data[i] = value;
             ++_size;
         }
+    }
+}
+
+void MyVector::insert(const size_t i, const MyVector &value){
+    size_t delta = value.size();
+    if(i == _size)
+        for(size_t j = 0; j < delta; ++j)
+            pushBack(value[j]);
+    else if(i > _size){
+        assert(i > _size);
+    }
+    else{
+        if(_capacity < _size + delta){
+            while(_capacity < _size + delta)
+                _capacity = capCalc(true);
+            ValueType  *tmp_data = new ValueType[_capacity];
+            for(size_t j = i; j < delta + i; j++){
+                tmp_data[j] = value[j - i];
+            }
+            for(size_t j = 0; j < i; ++j)
+                tmp_data[j] = _data[j];
+            for(size_t j = i + delta; j < _size + delta; ++j)
+                tmp_data[j] = _data[j - delta];
+            delete _data;
+            _data = tmp_data;
+        }
+        else{
+            for(long long j = (long long)(_size + delta) - 1; j >= (const long long)i + delta; --j){
+                _data[j] = _data[j - delta];
+            }
+            for(size_t j = i; j < i + delta; ++j)
+                _data[j] = value[j - i];
+        }
+        _size += delta;
     }
 }
 
