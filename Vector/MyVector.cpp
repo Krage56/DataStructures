@@ -1,6 +1,4 @@
 
-#include <iostream>
-
 #include "MyVector.h"
 
 size_t MyVector::capacity() const {
@@ -281,7 +279,80 @@ void MyVector::cropMem() {
         reserve(min_cap);
 }
 
+long long int MyVector::find(const ValueType &value, bool isBegin) const {
+    if(isBegin){
+        for(size_t i = 0; i < _size; ++i){
+            if(_data[i] == value)
+                return i;
+        }
+    }
+    else{
+        for(long long i = _size - 1; i >= 0; --i){
+            if(_data[i] == value)
+                return i;
+        }
+    }
 
+    return -1;
+}
+
+MyVector::iterator MyVector::begin()
+{
+    return iterator(_data);
+}
+
+MyVector::iterator MyVector::end()
+{
+    return iterator(_data + _size);
+}
+
+MyVector::const_iterator MyVector::begin() const
+{
+    return const_iterator(_data);
+}
+
+MyVector::const_iterator MyVector::end() const
+{
+    return const_iterator(_data + _size);
+}
+
+MyVector::VecIterator::VecIterator(ValueType *p) :
+        p(p)
+{
+
+}
+
+
+MyVector::VecIterator::VecIterator(const VecIterator& it) :
+        p(it.p)
+{
+
+}
+
+
+bool MyVector::VecIterator::operator!=(VecIterator const& other) const
+{
+    return p != other.p;
+}
+
+
+bool MyVector::VecIterator::operator==(VecIterator const& other) const
+{
+    return p == other.p;
+}
+
+
+typename MyVector::VecIterator::reference MyVector::VecIterator::operator*()
+const{
+    return *p;
+}
+
+
+MyVector::VecIterator &MyVector::VecIterator::operator++()
+{
+    ++p;
+    return *this;
+}
 
 
 

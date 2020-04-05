@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <iterator>
 // стратегия изменения capacity
 enum class ResizeStrategy {
 	Additive,// capacity = OldCapacity + delta
@@ -18,6 +19,23 @@ using ValueType = double;
 class MyVector
 {
 public:
+    class VecIterator: public std::iterator<std::input_iterator_tag, ValueType>
+    {
+        friend class MyVector;
+    private:
+        VecIterator(ValueType* p);
+    public:
+        VecIterator(const VecIterator &it);
+
+        bool operator!=(VecIterator const& other) const;
+        bool operator==(VecIterator const& other) const; //need for BOOST_FOREACH
+        typename VecIterator::reference operator*() const;
+        VecIterator& operator++();
+    private:
+        ValueType* p;
+    };
+
+
 	MyVector(size_t size = 0,
 	        ResizeStrategy = ResizeStrategy::Multiplicative,
 	        float coef = 1.5f);
@@ -62,7 +80,7 @@ public:
 	// должен работать за O(n)
 	// если isBegin == true, найти индекс первого элемента, равного value, иначе последнего
 	// если искомого элемента нет, вернуть -1
-	long long int find(const ValueType& value, bool isBegin = true) const;	
+	long long int find(const ValueType& value, bool isBegin = true) const;
 
 	// зарезервировать память (принудительно задать capacity)
 	void reserve(const size_t capacity);
@@ -75,7 +93,17 @@ public:
 	// очистка вектора, без изменения capacity
 	void clear();
 
-	/*Вспомогательные методы работы с памятью*/
+	/*итераторы*/
+    typedef VecIterator iterator;
+    typedef VecIterator const_iterator;
+
+    iterator begin();
+    iterator end();
+
+    const_iterator begin() const;
+    const_iterator end() const;
+
+    /*Вспомогательные методы работы с памятью*/
 protected:
     /*Считает новый _capacity с учётом политики выделения
     памяти и loadFactor-а*/
