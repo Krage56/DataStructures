@@ -79,7 +79,9 @@ public:
 protected:
     /*Считает новый _capacity с учётом политики выделения
     памяти и loadFactor-а*/
-    size_t capCalc(bool forced_increase = false);
+    size_t capCalc(bool forced_increase = false);//использует _capacity
+    size_t capCalc(size_t cap);//использует передаваемый параметр
+    void cropMem();//процедура обрезки памяти
 private:
 	ValueType* _data;
 	size_t _size;

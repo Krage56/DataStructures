@@ -139,6 +139,14 @@ size_t MyVector::capCalc(bool forced_increase) {
            std::round(_capacity / _coef): _capacity - _coef;
 }
 
+size_t MyVector::capCalc(size_t cap) {
+    return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()?
+           _strategy == ResizeStrategy::Multiplicative?
+           std::round(cap * _coef): cap + _coef :
+           _strategy == ResizeStrategy::Multiplicative?
+           std::round(cap / _coef): cap - _coef;
+}
+
 void MyVector::insert(const size_t i, const ValueType &value) {
     if(i == _size)
         pushBack(value);
@@ -159,7 +167,7 @@ void MyVector::insert(const size_t i, const ValueType &value) {
             ++_size;
         }
         else{
-            //Без этого касатавания будет больно
+            //Без этого каставания будет больно
             for(long long j = _size - 1; j >= (const long long)i; --j)
                 _data[j + 1] = _data[j];
             _data[i] = value;
@@ -204,6 +212,8 @@ void MyVector::insert(const size_t i, const MyVector &value){
 
 void MyVector::popBack() {
     --_size;
+    /*обрежем память, если необходимо*/
+    cropMem();
 }
 
 void MyVector::clear() {
@@ -227,14 +237,8 @@ void MyVector::erase(const size_t i) {
         _data[j] = _data[j + 1];
     }
     --_size;
-    /*оборежем выделяемую память, если пустых ячеек
-      много*/
-    size_t max_cap = _capacity;
-    while((capCalc() < max_cap) &&
-          (capCalc() >= _size)){
-        max_cap = capCalc();
-        reserve(max_cap);
-    }
+    /*обрежем выделяемую память, если необходимо*/
+    cropMem();
 }
 
 void MyVector::erase(const size_t i, const size_t len) {
@@ -255,16 +259,26 @@ void MyVector::erase(const size_t i, const size_t len) {
         }
         _size -= len;
     }
-
-    /*оборежем выделяемую память, если пустых ячеек
-      много*/
-    size_t max_cap = _capacity;
-    while((capCalc() < max_cap) &&
-    (capCalc() >= _size)){
-        max_cap = capCalc();
-        reserve(max_cap);
-    }
+    /*обрежем выделяемую память, если необходимо*/
+    cropMem();
 }
+
+void MyVector::resize(const size_t size, const ValueType) {
+
+}
+
+void MyVector::cropMem() {
+    size_t min_cap = _capacity;
+    size_t reserve_cap = _capacity;
+    while((capCalc(min_cap) < min_cap) &&
+          (capCalc(min_cap) >= _size)){
+        min_cap = capCalc(min_cap);
+    }
+    if(reserve_cap > min_cap)
+        reserve(min_cap);
+}
+
+
 
 
 
