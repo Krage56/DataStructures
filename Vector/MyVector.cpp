@@ -114,15 +114,7 @@ ValueType &MyVector::operator[](const size_t i) const {
     return _data[i];
 }
 
-void MyVector::resize_data(size_t newCap) {
-    if(newCap < _size)
-        _size = newCap;
-    ValueType  *tmp_data = new ValueType[newCap];
-    memcpy(tmp_data, _data, _size * sizeof(ValueType));
-    delete _data;
-    _data = tmp_data;
-    _capacity = newCap;
-}
+
 
 float MyVector::loadFactor() {
     if(_capacity != 0)
@@ -132,7 +124,7 @@ float MyVector::loadFactor() {
 
 void MyVector::pushBack(const ValueType &value) {
     if(_capacity < _size + 1){
-        resize_data(capCalc());
+        reserve(capCalc());
     }
     _data[_size] = value;
     ++_size;
@@ -209,4 +201,70 @@ void MyVector::insert(const size_t i, const MyVector &value){
         _size += delta;
     }
 }
+
+void MyVector::popBack() {
+    --_size;
+}
+
+void MyVector::clear() {
+    delete _data;
+    _data = new ValueType[_capacity];
+    _size = 0;
+}
+
+void MyVector::reserve(const size_t capacity) {
+    if(capacity < _size)
+        _size = capacity;
+    ValueType  *tmp_data = new ValueType[capacity];
+    memcpy(tmp_data, _data, _size * sizeof(ValueType));
+    delete _data;
+    _data = tmp_data;
+    _capacity = capacity;
+}
+
+void MyVector::erase(const size_t i) {
+    for(size_t j = i; j < _size - 1; ++j){
+        _data[j] = _data[j + 1];
+    }
+    --_size;
+    /*оборежем выделяемую память, если пустых ячеек
+      много*/
+    size_t max_cap = _capacity;
+    while((capCalc() < max_cap) &&
+          (capCalc() >= _size)){
+        max_cap = capCalc();
+        reserve(max_cap);
+    }
+}
+
+void MyVector::erase(const size_t i, const size_t len) {
+    if (i + len >= _size)
+        assert(i + len >= _size);
+    else if (i + len == _size - 1)
+        for (size_t j = i; j < len; ++j){
+            popBack();
+        }
+    else{
+        /*сколько элементов от последнего удалённого до конца
+        вектора*/
+        size_t delta = _size - (i + len + 1);
+        /*перенесём delta элементов с конца массива
+         на освободившиеся позиции*/
+        for(size_t j = i; j < i + delta; ++j){
+            _data[j] = _data[j + len];
+        }
+        _size -= len;
+    }
+
+    /*оборежем выделяемую память, если пустых ячеек
+      много*/
+    size_t max_cap = _capacity;
+    while((capCalc() < max_cap) &&
+    (capCalc() >= _size)){
+        max_cap = capCalc();
+        reserve(max_cap);
+    }
+}
+
+
 

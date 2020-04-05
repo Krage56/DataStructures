@@ -77,8 +77,6 @@ public:
 
 	/*Вспомогательные методы работы с памятью*/
 protected:
-    //Изменяет _data в соответсвии с новым _capacity
-    void resize_data(size_t newCap);
     /*Считает новый _capacity с учётом политики выделения
     памяти и loadFactor-а*/
     size_t capCalc(bool forced_increase = false);
