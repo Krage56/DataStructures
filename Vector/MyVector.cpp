@@ -40,7 +40,7 @@ MyVector::MyVector(size_t size, ValueType value, ResizeStrategy strategy, float 
         _capacity += round(coef);
     }
     else{
-        assert("Unidentified strategy");
+        assert(strategy);
     }
     _data = new ValueType[_capacity];
     for(size_t i = 0; i < size; ++i){
@@ -70,13 +70,15 @@ MyVector::MyVector(const MyVector &copy)
 MyVector& MyVector::operator=(const MyVector &copy) {
     if(this == &copy)
         return *this;
-    MyVector tmp(copy);
+
+    ValueType *tmp_data = new ValueType[copy._capacity];
     delete _data;
-    _data = tmp._data;
-    _size = tmp._size;
-    _capacity = tmp._capacity;
-    _strategy = tmp._strategy;
-    _coef = tmp._coef;
+    _data = tmp_data;
+    memcpy(_data, copy._data, sizeof(ValueType) * copy._size);
+    _size = copy._size;
+    _capacity = copy._capacity;
+    _strategy = copy._strategy;
+    _coef = copy._coef;
     return *this;
 }
 
@@ -244,7 +246,7 @@ void MyVector::erase(const size_t i, const size_t len) {
     else{
         /*сколько элементов от последнего удалённого до конца
         вектора*/
-        size_t delta = _size - (i + len + 1);
+        size_t delta = _size - (i + len /*+ 1*/);
         /*перенесём delta элементов с конца массива
          на освободившиеся позиции*/
         for(size_t j = i; j < i + delta; ++j){
@@ -256,8 +258,16 @@ void MyVector::erase(const size_t i, const size_t len) {
     cropMem();
 }
 
-void MyVector::resize(const size_t size, const ValueType) {
-
+void MyVector::resize(const size_t size, const ValueType default_value) {
+    if(size > _size){
+        if(size > _capacity){
+            reserve(size);
+        }
+        memset(_data + _size, default_value,
+               sizeof(ValueType) * (size - _size));
+    }
+    _size = size;
+    cropMem();
 }
 
 void MyVector::cropMem() {
