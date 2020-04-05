@@ -124,28 +124,21 @@ float MyVector::loadFactor() {
 
 void MyVector::pushBack(const ValueType &value) {
     if(_capacity < _size + 1){
-        reserve(capCalc());
+        reserve(capCalc(_capacity));
     }
     _data[_size] = value;
     ++_size;
 }
 
-size_t MyVector::capCalc(bool forced_increase) {
+size_t MyVector::capCalc(size_t cap, bool forced_increase) {
     return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()
     || forced_increase ?
            _strategy == ResizeStrategy::Multiplicative?
-        std::round(_capacity * _coef): _capacity + _coef :
-           _strategy == ResizeStrategy::Multiplicative?
-           std::round(_capacity / _coef): _capacity - _coef;
-}
-
-size_t MyVector::capCalc(size_t cap) {
-    return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()?
-           _strategy == ResizeStrategy::Multiplicative?
-           std::round(cap * _coef): cap + _coef :
+        std::round(cap * _coef): cap + _coef :
            _strategy == ResizeStrategy::Multiplicative?
            std::round(cap / _coef): cap - _coef;
 }
+
 
 void MyVector::insert(const size_t i, const ValueType &value) {
     if(i == _size)
@@ -155,7 +148,7 @@ void MyVector::insert(const size_t i, const ValueType &value) {
     }
     else{
         if(_capacity < _size + 1){
-            _capacity = capCalc();
+            _capacity = capCalc(_capacity);
             ValueType  *tmp_data = new ValueType[_capacity];
             tmp_data[i] = value;
             for(size_t j = 0; j < i; ++j)
@@ -187,7 +180,7 @@ void MyVector::insert(const size_t i, const MyVector &value){
     else{
         if(_capacity < _size + delta){
             while(_capacity < _size + delta)
-                _capacity = capCalc(true);
+                _capacity = capCalc(_capacity,true);
             ValueType  *tmp_data = new ValueType[_capacity];
             for(size_t j = i; j < delta + i; j++){
                 tmp_data[j] = value[j - i];
