@@ -118,7 +118,7 @@ ValueType &MyVector::operator[](const size_t i) const {
 
 float MyVector::loadFactor() {
     if(_capacity != 0)
-        return _size / _capacity;
+        return (float)_size / (float)_capacity;
     return 0;
 }
 
@@ -261,22 +261,25 @@ void MyVector::resize(const size_t size, const ValueType default_value) {
         if(size > _capacity){
             reserve(size);
         }
-        memset(_data + _size, default_value,
-               sizeof(ValueType) * (size - _size));
+        for(size_t i = _size; i < size; ++i){
+            _data[i] = default_value;
+        }
     }
     _size = size;
     cropMem();
 }
 
 void MyVector::cropMem() {
-    size_t min_cap = _capacity;
-    size_t reserve_cap = _capacity;
-    while((capCalc(min_cap) < min_cap) &&
-          (capCalc(min_cap) >= _size)){
-        min_cap = capCalc(min_cap);
+    if((std::fabs(loadFactor() - 1/pow(_coef, 2)) < std::numeric_limits<float>::epsilon())
+        || (loadFactor() < 1/pow(_coef, 2)))
+    {
+        size_t min_capacity = _capacity;
+        while(capCalc(min_capacity) > _size && (float)_size/(float)min_capacity < 0.5)
+        {
+            min_capacity = capCalc(min_capacity);
+        }
+        reserve(min_capacity);
     }
-    if(reserve_cap > min_cap)
-        reserve(min_cap);
 }
 
 long long int MyVector::find(const ValueType &value, bool isBegin) const {
