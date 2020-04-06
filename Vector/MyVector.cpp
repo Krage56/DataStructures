@@ -270,8 +270,8 @@ void MyVector::resize(const size_t size, const ValueType default_value) {
 }
 
 void MyVector::cropMem() {
-    if((std::fabs(loadFactor() - 1/pow(_coef, 2)) < std::numeric_limits<float>::epsilon())
-        || (loadFactor() < 1/pow(_coef, 2)))
+    if(((std::fabs(loadFactor() - 1/pow(_coef, 2)) < std::numeric_limits<float>::epsilon())
+        || (loadFactor() < 1/pow(_coef, 2))) && (_size != 0))
     {
         size_t min_capacity = _capacity;
         while(capCalc(min_capacity) > _size && (float)_size/(float)min_capacity < 0.5)
@@ -362,18 +362,79 @@ MyVector::VecIterator &MyVector::VecIterator::operator--()
     return *this;
 }
 
-
 MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy){
-    MyVector res_vec(vec.size());
+    MyVector vec_plus, vec_minus;
     if(strategy == SortedStrategy::Decrease){
-        for(long long i = 0; i < vec.size(); ++i){
-            res_vec[i] = pow(vec[vec.size() - i - 1], 2);
+        for(size_t i = 0; i < vec.size(); ++i){
+            vec[i] >= 0? vec_plus.insert(0, pow(vec[i], 2)):vec_minus.pushBack(pow(vec[i], 2));
+        }
+    }
+    if(strategy == SortedStrategy::Increase){
+        for(size_t i = 0; i < vec.size(); ++i){
+            vec[i] >= 0? vec_plus.pushBack(pow(vec[i], 2)):vec_minus.insert(0, pow(vec[i], 2));
+        }
+    }
+    if(vec_minus.size() == 0){
+        return  vec_plus;
+    }
+    else if(vec_plus.size() == 0){
+        return vec_minus;
+    }
+    size_t top = vec_plus.size() - 1;//index
+    size_t bottom = 0;//index
+    size_t mid = 0;//index
+    size_t tmp = 0;//value
+    if(strategy == SortedStrategy::Decrease){
+        while(vec_minus.size() != 0){
+            tmp = vec_minus[vec_minus.size() - 1];
+            vec_minus.popBack();
+            while(top - bottom > 1){
+                mid = (top - bottom % 2) ? (top - bottom)/2 + 1: (top - bottom)/2;
+                mid += bottom;
+                if(vec_plus[mid] > tmp){
+                    bottom = mid;
+                }
+                else{
+                    top = mid - 1;
+                }
+            }
+            if(tmp <= vec_plus[top])
+                vec_plus.insert(top + 1, tmp);
+            else if((tmp > vec_plus[top]) && (tmp < vec_plus[bottom])){
+                vec_plus.insert(bottom + 1, tmp);
+            }
+            else{
+                vec_plus.insert(bottom, tmp);
+            }
+            bottom = 0;
+            top = vec_plus.size() - 1;
         }
     }
     else if(strategy == SortedStrategy::Increase){
-        for(long long i = 0; i < vec.size(); ++i){
-            res_vec[i] = pow(vec[i], 2);
+        while(vec_minus.size() != 0){
+            tmp = vec_minus[vec_minus.size() - 1];
+            vec_minus.popBack();
+            while(top - bottom > 1){
+                mid = (top - bottom % 2) ? (top - bottom)/2 + 1: (top - bottom)/2;
+                mid += bottom;
+                if(vec_plus[mid] > tmp){
+                    top = mid - 1;
+                }
+                else{
+                    bottom = mid;
+                }
+            }
+            if(tmp >= vec_plus[top])
+                vec_plus.insert(top + 1, tmp);
+            else if((tmp < vec_plus[top]) && (tmp > vec_plus[bottom])){
+                vec_plus.insert(bottom + 1, tmp);
+            }
+            else{
+                vec_plus.insert(bottom, tmp);
+            }
+            bottom = 0;
+            top = vec_plus.size() - 1;
         }
     }
-    return res_vec;
+    return vec_plus;
 }
