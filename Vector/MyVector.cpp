@@ -280,6 +280,8 @@ void MyVector::cropMem() {
         }
         reserve(min_capacity);
     }
+    else if (_size == 0)
+        reserve(1);
 }
 
 long long int MyVector::find(const ValueType &value, bool isBegin) const {
