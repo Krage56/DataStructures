@@ -1,6 +1,5 @@
 #include "LinkedList.h"
 
-#include <cassert>
 #include <iostream>
 
 LinkedList::Node::Node(const ValueType& value, Node* next)
@@ -24,8 +23,9 @@ void LinkedList::Node::removeNext()
 {
 	Node* removeNode = this->next;
 	Node* newNext = removeNode->next;
-	delete removeNode;
 	this->next = newNext;
+	removeNode->next = nullptr;
+	delete removeNode;
 }
 
 void LinkedList::Node::insertNext(LinkedList::Node *node) {
@@ -37,7 +37,7 @@ void LinkedList::Node::insertNext(LinkedList::Node *node) {
 LinkedList::LinkedList()
 	: _head(nullptr), _size(0)
 {
-	
+
 }
 
 LinkedList::LinkedList(const LinkedList& copyList)
@@ -58,17 +58,23 @@ LinkedList::LinkedList(const LinkedList& copyList)
 		currentCopyNode = currentCopyNode->next;
 		currentNode = currentNode->next;
 	}
+    currentNode->next = nullptr;//на всякий случай
 }
 
 LinkedList& LinkedList::operator=(const LinkedList& copyList){
 	if (this == &copyList) {
 		return *this;
 	}
-	Node* tmp_head = new Node(copyList._head->value,
-	        copyList._head->next);
-	forceNodeDelete(_head);
-	this->_head = tmp_head;
-	this->_size = copyList._size;
+	forceNodeDelete(_head);//удалить весь текущий список
+    this->_head = new Node(copyList._head->value);//копирование головы
+    Node* currentNode = this->_head;
+    Node* currentCopyNode = copyList._head;
+    while (currentCopyNode->next) {
+        currentNode->next = new Node(currentCopyNode->next->value);
+        currentCopyNode = currentCopyNode->next;
+        currentNode = currentNode->next;
+    }
+    currentNode->next = nullptr;//на всякий случай
 	return *this;
 }
 
@@ -109,10 +115,12 @@ ValueType& LinkedList::operator[](const size_t pos) const
 LinkedList::Node* LinkedList::getNode(const size_t pos) const
 {
 	if (pos < 0) {
-		assert(pos < 0);
+		throw std::out_of_range("Index of required node is "
+                          "out of range\n");
 	}
 	else if (pos >= this->_size) {
-		assert(pos >= this->_size);
+        throw std::out_of_range("Index of required node is"
+                               "out of range\n");
 	}
 
 	Node* bufNode = this->_head;
@@ -126,10 +134,12 @@ LinkedList::Node* LinkedList::getNode(const size_t pos) const
 void LinkedList::insert(const size_t pos, const ValueType& value)
 {
 	if (pos < 0) {
-		assert(pos < 0);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
 	}
 	else if (pos > this->_size) {
-		assert(pos > this->_size);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
 	}
 
 	if (pos == 0) {
@@ -154,9 +164,11 @@ void LinkedList::pushBack(const ValueType& value)
 {
 	if (_size == 0) {
 		pushFront(value);
-		return;
+		//return;
 	}
-	insert(_size, value);
+	else{
+        insert(_size, value);
+	}
 }
 
 void LinkedList::pushFront(const ValueType& value)
@@ -167,10 +179,12 @@ void LinkedList::pushFront(const ValueType& value)
 
 void LinkedList::remove(const size_t pos){
     if (pos < 0) {
-        assert(pos < 0);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
     }
     else if (pos > this->_size) {
-        assert(pos > this->_size);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
     }
 
     if (pos == 0) {
@@ -203,6 +217,7 @@ void LinkedList::removeBack() {
         bufNode = bufNode->next;
     }
     delete bufNode;
+    --_size;
 }
 long long int LinkedList::findIndex(const ValueType& value) const
 {
@@ -227,13 +242,16 @@ LinkedList::Node* LinkedList::findNode(const ValueType& value) const
 }
 
 void LinkedList::reverse(){
-    Node *tmp;
-    for(int i = 0; i < _size; ++i){
-        tmp = getNode(_size - 1);
-        this->insert(i, tmp);
+    if(_size > 1){
+        Node *tmp;
+        for(int i = 0; i < _size; ++i){
+            tmp = getNode(_size - 1);
+            this->insert(i, tmp);
+        }
+        //иначе петля в последнем элементе
+        tmp->next = nullptr;
     }
-    //иначе петля в последнем элементе
-    tmp->next = nullptr;
+
 }
 
 LinkedList LinkedList::reverse() const
@@ -267,14 +285,16 @@ void LinkedList::forceNodeDelete(Node* node)
 
 void LinkedList::insert(const size_t pos, LinkedList::Node *node) {
     if (pos < 0) {
-        assert(pos < 0);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
     }
     else if (pos > this->_size) {
-        assert(pos > this->_size);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
     }
 
     if (pos == 0) {
-        pushFront(node);
+        pushFrontNode(node);
     }
     else {
         Node* bufNode = this->_head;
@@ -286,15 +306,15 @@ void LinkedList::insert(const size_t pos, LinkedList::Node *node) {
     }
 }
 
-void LinkedList::pushBack(LinkedList::Node *node) {
+void LinkedList::pushBackNode(LinkedList::Node *node) {
     if (_size == 0) {
-        pushFront(node);
+        pushFrontNode(node);
         return;
     }
     insert(_size, node);
 }
 
-void LinkedList::pushFront(LinkedList::Node *node) {
+void LinkedList::pushFrontNode(LinkedList::Node *node) {
     Node *tmp = _head;
     _head = node;
     _head->next = tmp;

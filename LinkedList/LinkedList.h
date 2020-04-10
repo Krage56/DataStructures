@@ -69,8 +69,8 @@ public:
 
 /*Вспомогательные методы, НЕ МЕНЯЮТ РАЗМЕР СПИСКА*/
 protected:
-    void pushBack(Node *node);
-    void pushFront(Node *node);
+    void pushBackNode(Node *node);
+    void pushFrontNode(Node *node);
     void insert(const size_t pos, Node *node);
 
 private:
