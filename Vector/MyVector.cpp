@@ -19,7 +19,8 @@ MyVector::MyVector(size_t size, ResizeStrategy strategy, float coef)
         _capacity += round(coef);
     }
     else{
-        assert("Unidentified strategy");
+        //assert("Unidentified strategy");
+        throw std::invalid_argument("Unidentified strategy\n");
     }
     _data = new ValueType[_capacity];
     _size = size;
@@ -38,7 +39,8 @@ MyVector::MyVector(size_t size, ValueType value, ResizeStrategy strategy, float 
         _capacity += round(coef);
     }
     else{
-        assert(strategy);
+        //assert(strategy);
+        throw std::invalid_argument("Unidentified strategy\n");
     }
     _data = new ValueType[_capacity];
     for(size_t i = 0; i < size; ++i){
@@ -50,7 +52,7 @@ MyVector::MyVector(size_t size, ValueType value, ResizeStrategy strategy, float 
 }
 
 MyVector::~MyVector() {
-    delete _data;
+    delete []_data;
 }
 
 MyVector::MyVector(const MyVector &copy)
@@ -70,7 +72,7 @@ MyVector& MyVector::operator=(const MyVector &copy) {
         return *this;
 
     ValueType *tmp_data = new ValueType[copy._capacity];
-    delete _data;
+    delete []_data;
     _data = tmp_data;
     memcpy(_data, copy._data, sizeof(ValueType) * copy._size);
     _size = copy._size;
@@ -95,7 +97,7 @@ MyVector::MyVector(MyVector &&moveVec) noexcept {
 MyVector &MyVector::operator=(MyVector &&moveVec) noexcept {
     if(this == &moveVec)
         return *this;
-    delete _data;
+    delete []_data;
     _size = moveVec._size;
     _capacity = moveVec._capacity;
     _data = moveVec._data;
@@ -110,7 +112,8 @@ MyVector &MyVector::operator=(MyVector &&moveVec) noexcept {
 
 ValueType &MyVector::operator[](const size_t i) const {
     if(i >= _size)
-        assert(i >= _size);
+        //assert(i >= _size);
+        throw std::out_of_range("Index of required position is out of range\n");
     return _data[i];
 }
 
@@ -144,7 +147,8 @@ void MyVector::insert(const size_t i, const ValueType &value) {
     if(i == _size)
         pushBack(value);
     else if(i > _size){
-        assert(i > _size);
+        //assert(i > _size);
+        throw std::out_of_range("Index of required position is out of range\n");
     }
     else{
         if(_capacity < _size + 1){
@@ -155,7 +159,7 @@ void MyVector::insert(const size_t i, const ValueType &value) {
                 tmp_data[j] = _data[j];
             for(size_t j = i + 1; j < _size + 1; ++j)
                 tmp_data[j] = _data[j - 1];
-            delete _data;
+            delete []_data;
             _data = tmp_data;
             ++_size;
         }
@@ -175,7 +179,8 @@ void MyVector::insert(const size_t i, const MyVector &value){
         for(size_t j = 0; j < delta; ++j)
             pushBack(value[j]);
     else if(i > _size){
-        assert(i > _size);
+        //assert(i > _size);
+        throw std::out_of_range("Index of required position is out of range\n");
     }
     else{
         if(_capacity < _size + delta){
@@ -189,7 +194,7 @@ void MyVector::insert(const size_t i, const MyVector &value){
                 tmp_data[j] = _data[j];
             for(size_t j = i + delta; j < _size + delta; ++j)
                 tmp_data[j] = _data[j - delta];
-            delete _data;
+            delete []_data;
             _data = tmp_data;
         }
         else{
@@ -210,7 +215,7 @@ void MyVector::popBack() {
 }
 
 void MyVector::clear() {
-    delete _data;
+    delete []_data;
     _data = new ValueType[_capacity];
     _size = 0;
 }
@@ -220,7 +225,7 @@ void MyVector::reserve(const size_t capacity) {
         _size = capacity;
     ValueType  *tmp_data = new ValueType[capacity];
     memcpy(tmp_data, _data, _size * sizeof(ValueType));
-    delete _data;
+    delete []_data;
     _data = tmp_data;
     _capacity = capacity;
 }
@@ -236,7 +241,9 @@ void MyVector::erase(const size_t i) {
 
 void MyVector::erase(const size_t i, const size_t len) {
     if (i + len >= _size)
-        assert(i + len >= _size);
+        //assert(i + len >= _size);
+        throw std::out_of_range("Index of required position is "
+                                "out of range\n");
     else if (i + len == _size - 1)
         for (size_t j = i; j < len; ++j){
             popBack();
