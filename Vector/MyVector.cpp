@@ -372,78 +372,18 @@ MyVector::VecIterator &MyVector::VecIterator::operator--()
 }
 
 MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy){
-    MyVector vec_plus, vec_minus;
-    if(strategy == SortedStrategy::Decrease){
-        for(size_t i = 0; i < vec.size(); ++i){
-            vec[i] >= 0? vec_plus.insert(0, pow(vec[i], 2)):vec_minus.pushBack(pow(vec[i], 2));
+    MyVector result(vec.size());
+    size_t top = vec.size() - 1, bottom = 0;
+    size_t count = vec.size();
+    for(int i = 0; i < vec.size(); ++i){
+        if(pow(vec[top], 2) > pow(vec[bottom], 2)){
+            result[strategy == SortedStrategy::Decrease? i: count - i - 1] = pow(vec[top], 2);
+            top -= 1;
+        }
+        else{
+            result[strategy == SortedStrategy::Decrease? i: count - i - 1] = pow(vec[bottom], 2);
+            bottom += 1;
         }
     }
-    if(strategy == SortedStrategy::Increase){
-        for(size_t i = 0; i < vec.size(); ++i){
-            vec[i] >= 0? vec_plus.pushBack(pow(vec[i], 2)):vec_minus.insert(0, pow(vec[i], 2));
-        }
-    }
-    if(vec_minus.size() == 0){
-        return  vec_plus;
-    }
-    else if(vec_plus.size() == 0){
-        return vec_minus;
-    }
-    size_t top = vec_plus.size() - 1;//index
-    size_t bottom = 0;//index
-    size_t mid = 0;//index
-    size_t tmp = 0;//value
-    if(strategy == SortedStrategy::Decrease){
-        while(vec_minus.size() != 0){
-            tmp = vec_minus[vec_minus.size() - 1];
-            vec_minus.popBack();
-            while(top - bottom > 1){
-                mid = (top - bottom % 2) ? (top - bottom)/2 + 1: (top - bottom)/2;
-                mid += bottom;
-                if(vec_plus[mid] > tmp){
-                    bottom = mid;
-                }
-                else{
-                    top = mid - 1;
-                }
-            }
-            if(tmp <= vec_plus[top])
-                vec_plus.insert(top + 1, tmp);
-            else if((tmp > vec_plus[top]) && (tmp < vec_plus[bottom])){
-                vec_plus.insert(bottom + 1, tmp);
-            }
-            else{
-                vec_plus.insert(bottom, tmp);
-            }
-            bottom = 0;
-            top = vec_plus.size() - 1;
-        }
-    }
-    else if(strategy == SortedStrategy::Increase){
-        while(vec_minus.size() != 0){
-            tmp = vec_minus[vec_minus.size() - 1];
-            vec_minus.popBack();
-            while(top - bottom > 1){
-                mid = (top - bottom % 2) ? (top - bottom)/2 + 1: (top - bottom)/2;
-                mid += bottom;
-                if(vec_plus[mid] > tmp){
-                    top = mid - 1;
-                }
-                else{
-                    bottom = mid;
-                }
-            }
-            if(tmp >= vec_plus[top])
-                vec_plus.insert(top + 1, tmp);
-            else if((tmp < vec_plus[top]) && (tmp > vec_plus[bottom])){
-                vec_plus.insert(bottom + 1, tmp);
-            }
-            else{
-                vec_plus.insert(bottom, tmp);
-            }
-            bottom = 0;
-            top = vec_plus.size() - 1;
-        }
-    }
-    return vec_plus;
+    return result;
 }
