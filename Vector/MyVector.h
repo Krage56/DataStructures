@@ -1,11 +1,22 @@
 #pragma once
 
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+#include <limits>
+#include <iterator>
 // стратегия изменения capacity
 enum class ResizeStrategy {
-	Additive,
-	Multiplicative
+	Additive,// capacity = OldCapacity + delta
+	Multiplicative // capacity = coef * OldCapacity
 };
 
+//определение сортировки для sortedSquares()
+enum class SortedStrategy{
+    Increase,
+    Decrease
+};
 // тип значений в векторе
 // потом будет заменен на шаблон
 using ValueType = double;
@@ -13,15 +24,39 @@ using ValueType = double;
 class MyVector
 {
 public:
-	MyVector(size_t size = 0, ResizeStrategy = ResizeStrategy::Multiplicative, float coef = 1.5f);
-	MyVector(size_t size, ValueType value, ResizeStrategy = ResizeStrategy::Multiplicative, float coef = 1.5f);
+    class VecIterator: public std::iterator<std::input_iterator_tag, ValueType>
+    {
+        friend class MyVector;
+    private:
+        VecIterator(ValueType* p);
+    public:
+        VecIterator(const VecIterator &it);
+
+        bool operator!=(VecIterator const& other) const;
+        bool operator==(VecIterator const& other) const; //need for BOOST_FOREACH
+        typename VecIterator::reference operator*() const;
+        VecIterator& operator++();
+        VecIterator& operator--();
+    private:
+        ValueType* p;
+    };
+
+
+	MyVector(size_t size = 0,
+	        ResizeStrategy = ResizeStrategy::Multiplicative,
+	        float coef = 1.5f);
+	MyVector(size_t size, ValueType value,
+	        ResizeStrategy = ResizeStrategy::Multiplicative,
+	        float coef = 1.5f);//Заполнить иниц-ый вектор value
 	
 	MyVector(const MyVector& copy);
 	MyVector& operator=(const MyVector& copy);
 
-	~MyVector();
+    //Конструктор перемещения
+    MyVector(MyVector&& moveVec) noexcept;
+    MyVector& operator=(MyVector&& moveVec) noexcept;
 
-	// для умненьких — реализовать конструктор и оператор для перемещения
+	~MyVector();
 
 	size_t capacity() const;
 	size_t size() const;
@@ -51,7 +86,7 @@ public:
 	// должен работать за O(n)
 	// если isBegin == true, найти индекс первого элемента, равного value, иначе последнего
 	// если искомого элемента нет, вернуть -1
-	long long int find(const ValueType& value, bool isBegin = true) const;	
+	long long int find(const ValueType& value, bool isBegin = true) const;
 
 	// зарезервировать память (принудительно задать capacity)
 	void reserve(const size_t capacity);
@@ -63,9 +98,31 @@ public:
 
 	// очистка вектора, без изменения capacity
 	void clear();
+
+	/*итераторы*/
+    typedef VecIterator iterator;
+    typedef VecIterator const_iterator;
+
+    iterator begin();
+    iterator end();
+
+    const_iterator begin() const;
+    const_iterator end() const;
+
+
+    /*Вспомогательные методы работы с памятью*/
+protected:
+    /*Считает новый _capacity с учётом политики выделения
+    памяти и loadFactor-а*/
+    size_t capCalc(size_t cap, bool forced_increase = false);
+    //процедура обрезки памяти
+    void cropMem();
 private:
 	ValueType* _data;
 	size_t _size;
 	size_t _capacity;
+	ResizeStrategy _strategy;
+	float _coef;
 };
 
+MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy);

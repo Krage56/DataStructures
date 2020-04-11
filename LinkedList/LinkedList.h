@@ -1,10 +1,11 @@
 #pragma once
 
 // потом поменяем на шаблоны
+#include <cstdlib>
+
 using ValueType = double;
 
-class LinkedList
-{
+class LinkedList{
 	// класс узла списка
 	// по своей сути, может содержать любые данные,
 	// можно реализовать и ассоциативный массив, просто добавив 
@@ -15,6 +16,7 @@ class LinkedList
 		~Node();
 
 		void insertNext(const ValueType& value);
+		void insertNext(Node* node);
 		void removeNext();
 
 		ValueType value;
@@ -48,14 +50,15 @@ public:
 	void pushFront(const ValueType& value);
 
 	// удаление
-	void remove(const size_t pos);
-	void removeNextNode(Node* node);
-	void removeFront();
-	void removeBack();
+	/*Отсюда пишу сам*/
+	void remove(const size_t pos);//+
+	void removeNextNode(Node* node);//+
+	void removeFront();//+
+	void removeBack();//+
 	
 	// поиск, О(n)
-	long long int findIndex(const ValueType& value) const;
-	Node* findNode(const ValueType& value) const;
+	long long int findIndex(const ValueType& value) const;//+
+	Node* findNode(const ValueType& value) const;//+
 
 	// разворот списка
 	void reverse();						// изменение текущего списка
@@ -63,6 +66,13 @@ public:
 	LinkedList getReverseList() const;	// чтобы неконстантный объект тоже мог возвращать новый развернутый список
 
 	size_t size() const;
+
+/*Вспомогательные методы, НЕ МЕНЯЮТ РАЗМЕР СПИСКА*/
+protected:
+    void pushBackNode(Node *node);
+    void pushFrontNode(Node *node);
+    void insert(const size_t pos, Node *node);
+
 private:
 	Node*	_head;
 	size_t	_size;
