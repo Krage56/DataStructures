@@ -16,7 +16,10 @@ MyVector::MyVector(size_t size, ResizeStrategy strategy, float coef)
         _capacity = size == 0? 1 : round(coef * size);
     }
     else if(strategy == ResizeStrategy::Additive){
-        _capacity += round(coef);
+        //_capacity += round(coef);
+        do{
+            _capacity += round(coef);
+        }while(_capacity < size);
     }
     else{
         //assert("Unidentified strategy");
@@ -175,7 +178,10 @@ void MyVector::insert(const size_t i, const ValueType &value) {
 
 void MyVector::insert(const size_t i, const MyVector &value){
     size_t delta = value.size();
-    if(i == _size)
+    if(_size == 0){
+        *this = value;
+    }
+    else if(i == _size)
         for(size_t j = 0; j < delta; ++j)
             pushBack(value[j]);
     else if(i > _size){
@@ -240,7 +246,7 @@ void MyVector::erase(const size_t i) {
 }
 
 void MyVector::erase(const size_t i, const size_t len) {
-    if (i + len >= _size)
+    if (i + len > _size)
         //assert(i + len >= _size);
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
@@ -273,7 +279,7 @@ void MyVector::resize(const size_t size, const ValueType default_value) {
         }
     }
     _size = size;
-    cropMem();
+    //cropMem();
 }
 
 void MyVector::cropMem() {
