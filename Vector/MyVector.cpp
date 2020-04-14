@@ -39,7 +39,10 @@ MyVector::MyVector(size_t size, ValueType value, ResizeStrategy strategy, float 
 
     }
     else if(strategy == ResizeStrategy::Additive){
-        _capacity += round(coef);
+        //_capacity += round(coef);
+        do{
+            _capacity += round(coef);
+        }while(_capacity < size);
     }
     else{
         //assert(strategy);
