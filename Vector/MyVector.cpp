@@ -293,7 +293,7 @@ void MyVector::resize(const size_t size, const ValueType default_value) {
         }
     }
     _size = size;
-    //cropMem();
+    cropMem();
 }
 
 void MyVector::cropMem() {
@@ -301,7 +301,7 @@ void MyVector::cropMem() {
         || (loadFactor() < 1/pow(_coef, 2))) && (_size != 0))
     {
         size_t min_capacity = _capacity;
-        while(capCalc(min_capacity) > _size && (float)_size/(float)min_capacity < 0.5)
+        while(capCalc(min_capacity) > _size + 1 && (float)_size/(float)min_capacity < 0.5)
         {
             min_capacity = capCalc(min_capacity);
         }
