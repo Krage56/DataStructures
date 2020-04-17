@@ -292,20 +292,20 @@ void MyVector::resize(const size_t size, const ValueType default_value) {
             _data[i] = default_value;
         }
     }
+    else if(size < _size){
+        _size = size;
+        cropMem();
+    }
     _size = size;
-    cropMem();
 }
 
 void MyVector::cropMem() {
     if(((std::fabs(loadFactor() - 1/pow(_coef, 2)) < std::numeric_limits<float>::epsilon())
         || (loadFactor() < 1/pow(_coef, 2))) && (_size != 0))
     {
-        size_t min_capacity = _capacity;
-        while(capCalc(min_capacity) > _size + 1 && (float)_size/(float)min_capacity < 0.5)
-        {
-            min_capacity = capCalc(min_capacity);
-        }
-        reserve(min_capacity);
+        size_t bottom_border = _strategy == ResizeStrategy::Multiplicative? std::round((float)_size * _coef):
+                std::round((float)_size + _coef);
+        reserve(bottom_border);
     }
     else if (_size == 0)
         reserve(1);
@@ -319,8 +319,8 @@ long long int MyVector::find(const ValueType &value, bool isBegin) const {
         }
     }
     else{
-        for(long long i = _size - 1; i >= 0; --i){
-            if(_data[i] == value)
+        for(long long i = _size; i > 0; --i){
+            if(_data[i - 1] == value)
                 return i;
         }
     }
