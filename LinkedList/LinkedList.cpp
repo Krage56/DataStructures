@@ -75,6 +75,7 @@ LinkedList& LinkedList::operator=(const LinkedList& copyList){
         currentNode = currentNode->next;
     }
     currentNode->next = nullptr;//на всякий случай
+    _size = copyList._size;
 	return *this;
 }
 
@@ -202,22 +203,26 @@ void LinkedList::remove(const size_t pos){
 
 void LinkedList::removeNextNode(Node* node){
     node->removeNext();
+    --_size;
 }
 
 void LinkedList::removeFront(){
-    Node* bufNode = _head->next;
-    delete _head;
-    _head = bufNode;
-    --_size;
+    if(_size){
+        Node* bufNode = _head->next;
+        delete _head;
+        _head = bufNode;
+        --_size;
+    }
 }
 
 void LinkedList::removeBack() {
-    Node* bufNode = this->_head;
-    for (size_t i = 0; i < _size; ++i) {
-        bufNode = bufNode->next;
+    if(_size > 1){
+        getNode(_size - 2)->removeNext();
+        --_size;
     }
-    delete bufNode;
-    --_size;
+    else{
+        removeFront();
+    }
 }
 long long int LinkedList::findIndex(const ValueType& value) const
 {
