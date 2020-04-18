@@ -44,7 +44,7 @@ public:
 	// вставка элемента по индексу, сначала ищем, куда вставлять (О(n)), потом вставляем (O(1))
 	void insert(const size_t pos, const ValueType& value);
 	// вставка элемента после узла, (O(1))
-	static void insertAfterNode(Node* node, const ValueType& value);
+	void insertAfterNode(Node* node, const ValueType& value);
 	// вставка в конец (О(n))
 	void pushBack(const ValueType& value);
 	// вставка в начало (О(1))
