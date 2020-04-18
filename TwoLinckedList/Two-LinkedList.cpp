@@ -178,6 +178,7 @@ void LinkedList::insert(const size_t pos, const ValueType& value)
 void LinkedList::insertAfterNode(Node* node, const ValueType& value)
 {
 	node->insertNext(value);
+	++_size;
 }
 
 void LinkedList::pushBack(const ValueType& value)
