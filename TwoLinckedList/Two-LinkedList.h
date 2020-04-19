@@ -11,14 +11,15 @@ class LinkedList{
 	// можно реализовать и ассоциативный массив, просто добавив 
 	// поле с ключем в узел и, с учетом этого, поменять методы LinkedList 
 	// (доступ по ключу, поиск по ключу и т.д.)
-    class Node{
+	class Node {
         public:
-            Node(const ValueType& value, Node* next = nullptr);
+            Node(const ValueType& value, Node* next = nullptr, Node* prev = nullptr);
             ~Node();
             ValueType value;
             Node* next;
+            Node* previous;
             friend class LinkedList;
-        private:
+	    private:
             void insertNext(const ValueType& value);
             void insertNext(Node* node);
             void removeNext();
@@ -51,7 +52,6 @@ public:
 	void pushFront(const ValueType& value);
 
 	// удаление
-	/*Отсюда пишу сам*/
 	void remove(const size_t pos);//+
 	void removeNextNode(Node* node);//+
 	void removeFront();//+
@@ -68,14 +68,15 @@ public:
 
 	size_t size() const;
 
-/*Вспомогательные методы, НЕ МЕНЯЮТ _SIZE СПИСКА*/
+/*Вспомогательные методы, НЕ МЕНЯЮТ РАЗМЕР СПИСКА*/
 protected:
     void pushBackNode(Node *node);
     void pushFrontNode(Node *node);
     void insert(const size_t pos, Node *node);
 
 private:
-	Node*	_head;
+	Node* _head;
+	Node* _tail;
 	size_t	_size;
 
 	void forceNodeDelete(Node* node);

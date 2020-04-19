@@ -16,10 +16,7 @@ MyVector::MyVector(size_t size, ResizeStrategy strategy, float coef)
         _capacity = size == 0? 1 : round(coef * size);
     }
     else if(strategy == ResizeStrategy::Additive){
-        //_capacity += round(coef);
-        do{
-            _capacity += round(coef);
-        }while(_capacity < size);
+        _capacity = round(size + coef);
     }
     else{
         //assert("Unidentified strategy");
@@ -39,10 +36,7 @@ MyVector::MyVector(size_t size, ValueType value, ResizeStrategy strategy, float 
 
     }
     else if(strategy == ResizeStrategy::Additive){
-        //_capacity += round(coef);
-        do{
-            _capacity += round(coef);
-        }while(_capacity < size);
+        _capacity = round(size + coef);
     }
     else{
         //assert(strategy);
@@ -118,7 +112,6 @@ MyVector &MyVector::operator=(MyVector &&moveVec) noexcept {
 
 ValueType &MyVector::operator[](const size_t i) const {
     if(i >= _size)
-        //assert(i >= _size);
         throw std::out_of_range("Index of required position is out of range\n");
     return _data[i];
 }
@@ -140,12 +133,31 @@ void MyVector::pushBack(const ValueType &value) {
 }
 
 size_t MyVector::capCalc(size_t cap, bool forced_increase) {
-    return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()
-    || forced_increase ?
-           _strategy == ResizeStrategy::Multiplicative?
-        std::round(cap * _coef): cap + _coef :
-           _strategy == ResizeStrategy::Multiplicative?
-           std::round(cap / _coef): cap - _coef;
+//    return std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()
+//    || forced_increase ?
+//           _strategy == ResizeStrategy::Multiplicative?
+//        std::round(cap * _coef): cap + _coef :
+//           _strategy == ResizeStrategy::Multiplicative?
+//           std::round(cap / _coef): cap - _coef;
+    size_t newCap = 0;
+    if((std::fabs(loadFactor() - 1.f) < std::numeric_limits<float>::epsilon()) ||
+    forced_increase){
+        if(_strategy == ResizeStrategy::Multiplicative){
+            newCap = std::round(cap * _coef);
+        }
+        else if(_strategy == ResizeStrategy::Additive){
+            newCap = cap + _coef * 2;
+        }
+    }
+    else{
+        if(_strategy == ResizeStrategy::Multiplicative){
+            newCap = std::round(cap / _coef);
+        }
+        else if(_strategy == ResizeStrategy::Additive){
+            newCap = cap - _coef;
+        }
+    }
+    return newCap;
 }
 
 
@@ -153,7 +165,6 @@ void MyVector::insert(const size_t i, const ValueType &value) {
     if(i == _size)
         pushBack(value);
     else if(i > _size){
-        //assert(i > _size);
         throw std::out_of_range("Index of required position is out of range\n");
     }
     else{
@@ -281,20 +292,20 @@ void MyVector::resize(const size_t size, const ValueType default_value) {
             _data[i] = default_value;
         }
     }
+    else if(size < _size){
+        _size = size;
+        cropMem();
+    }
     _size = size;
-    //cropMem();
 }
 
 void MyVector::cropMem() {
     if(((std::fabs(loadFactor() - 1/pow(_coef, 2)) < std::numeric_limits<float>::epsilon())
         || (loadFactor() < 1/pow(_coef, 2))) && (_size != 0))
     {
-        size_t min_capacity = _capacity;
-        while(capCalc(min_capacity) > _size && (float)_size/(float)min_capacity < 0.5)
-        {
-            min_capacity = capCalc(min_capacity);
-        }
-        reserve(min_capacity);
+        size_t bottom_border = _strategy == ResizeStrategy::Multiplicative? std::round((float)_size * _coef):
+                std::round((float)_size + _coef);
+        reserve(bottom_border);
     }
     else if (_size == 0)
         reserve(1);
@@ -308,8 +319,8 @@ long long int MyVector::find(const ValueType &value, bool isBegin) const {
         }
     }
     else{
-        for(long long i = _size - 1; i >= 0; --i){
-            if(_data[i] == value)
+        for(long long i = _size; i > 0; --i){
+            if(_data[i - 1] == value)
                 return i;
         }
     }
