@@ -21,11 +21,13 @@ void LinkedList::Node::insertNext(const ValueType& value)
 
 void LinkedList::Node::removeNext()
 {
-	Node* removeNode = this->next;
-	Node* newNext = removeNode->next;
-	this->next = newNext;
-	removeNode->next = nullptr;
-	delete removeNode;
+    if(this->next){
+        Node* removeNode = this->next;
+        Node* newNext = removeNode->next;
+        this->next = newNext;
+        removeNode->next = nullptr;
+        delete removeNode;
+    }
 }
 
 void LinkedList::Node::insertNext(LinkedList::Node *node) {
