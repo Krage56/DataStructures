@@ -9,10 +9,7 @@ LinkedList::Node::Node(const ValueType& value, Node* next, Node* prev)
 	this->next = next;
 }
 
-LinkedList::Node::~Node()
-{
-	// ничего не удаляем, т.к. агрегация
-}
+LinkedList::Node::~Node(){}
 
 void LinkedList::Node::insertNext(const ValueType& value)
 {
