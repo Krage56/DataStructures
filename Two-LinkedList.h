@@ -5,7 +5,7 @@
 #include <iostream>
 
 template <typename ValueType>
-class LinkedList{
+class TwoLinkedList{
 	class Node {
         public:
             Node(const ValueType& value, Node* next = nullptr, Node* prev = nullptr);
@@ -13,7 +13,7 @@ class LinkedList{
             ValueType value;
             Node* next;
             Node* previous;
-            friend class LinkedList;
+            friend class TwoLinkedList;
 	    private:
             void insertNext(const ValueType& value);
             void insertNext(Node* node);
@@ -22,20 +22,20 @@ class LinkedList{
 
 public:
 	////
-	LinkedList();
-	LinkedList(const LinkedList& copyList);
-	LinkedList& operator=(const LinkedList& copyList);
+	TwoLinkedList();
+	TwoLinkedList(const TwoLinkedList& copyList);
+	TwoLinkedList& operator=(const TwoLinkedList& copyList);
 
-	LinkedList(LinkedList&& moveList) noexcept;
-	LinkedList& operator=(LinkedList&& moveList) noexcept;
+	TwoLinkedList(TwoLinkedList&& moveList) noexcept;
+	TwoLinkedList& operator=(TwoLinkedList&& moveList) noexcept;
 
-	~LinkedList();
+	~TwoLinkedList();
 	////
 
 	// доступ к значению элемента по индексу
 	ValueType& operator[](const size_t pos) const;
 	// доступ к узлу по индексу
-	LinkedList::Node* getNode(const size_t pos) const;
+	TwoLinkedList::Node* getNode(const size_t pos) const;
 	
 	// вставка элемента по индексу, сначала ищем, куда вставлять (О(n)), потом вставляем (O(1))
 	void insert(const size_t pos, const ValueType& value);
@@ -58,8 +58,8 @@ public:
 
 	// разворот списка
 	void reverse();						// изменение текущего списка
-	LinkedList reverse() const;			// полчение нового списка (для константных объектов)
-	LinkedList getReverseList() const;	// чтобы неконстантный объект тоже мог возвращать новый развернутый список
+	TwoLinkedList reverse() const;			// полчение нового списка (для константных объектов)
+	TwoLinkedList getReverseList() const;	// чтобы неконстантный объект тоже мог возвращать новый развернутый список
 
 	size_t size() const;
 
@@ -78,7 +78,7 @@ private:
 };
 
 template <typename ValueType>
-LinkedList<ValueType>::Node::Node(const ValueType& value, Node* next, Node* prev){
+TwoLinkedList<ValueType>::Node::Node(const ValueType& value, Node* next, Node* prev){
     this->value = value;
     this->previous = prev;
     this->next = next;
@@ -86,16 +86,16 @@ LinkedList<ValueType>::Node::Node(const ValueType& value, Node* next, Node* prev
 
 
 template <typename ValueType>
-LinkedList<ValueType>::Node::~Node(){}
+TwoLinkedList<ValueType>::Node::~Node(){}
 
 template <typename ValueType>
-void LinkedList<ValueType>::Node::insertNext(const ValueType& value){
+void TwoLinkedList<ValueType>::Node::insertNext(const ValueType& value){
     Node* newNode = new Node(value, this->next, this);
     this->next = newNode;
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::Node::removeNext(){
+void TwoLinkedList<ValueType>::Node::removeNext(){
     if(this->next){
         Node* removeNode = this->next;
         Node* newNext = removeNode->next;
@@ -106,7 +106,7 @@ void LinkedList<ValueType>::Node::removeNext(){
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::Node::insertNext(LinkedList::Node *node) {
+void TwoLinkedList<ValueType>::Node::insertNext(TwoLinkedList::Node *node) {
     Node* tmp = this->next;
     this->next = node;
     node->previous = this;
@@ -115,12 +115,12 @@ void LinkedList<ValueType>::Node::insertNext(LinkedList::Node *node) {
 }
 
 template <typename ValueType>
-LinkedList<ValueType>::LinkedList()
+TwoLinkedList<ValueType>::TwoLinkedList()
         : _head(nullptr), _size(0), _tail(nullptr){}
 
 
 template <typename ValueType>
-LinkedList<ValueType>::LinkedList(const LinkedList& copyList){
+TwoLinkedList<ValueType>::TwoLinkedList(const TwoLinkedList& copyList){
     this->_size = copyList._size;
     if (this->_size == 0) {
         this->_head = nullptr;
@@ -143,7 +143,7 @@ LinkedList<ValueType>::LinkedList(const LinkedList& copyList){
     this->_tail = currentNode;
 }
 template <typename ValueType>
-LinkedList<ValueType>& LinkedList<ValueType>::operator=(const LinkedList& copyList){
+TwoLinkedList<ValueType>& TwoLinkedList<ValueType>::operator=(const TwoLinkedList& copyList){
     this->_size = copyList._size;
     if (this == &copyList) {
         return *this;
@@ -166,7 +166,7 @@ LinkedList<ValueType>& LinkedList<ValueType>::operator=(const LinkedList& copyLi
 }
 
 template <typename ValueType>
-LinkedList<ValueType>::LinkedList(LinkedList&& moveList) noexcept{
+TwoLinkedList<ValueType>::TwoLinkedList(TwoLinkedList&& moveList) noexcept{
     this->_size = moveList._size;
     this->_head = moveList._head;
     this->_tail = moveList._tail;
@@ -176,7 +176,7 @@ LinkedList<ValueType>::LinkedList(LinkedList&& moveList) noexcept{
 }
 
 template <typename ValueType>
-LinkedList<ValueType>& LinkedList<ValueType>::operator=(LinkedList&& moveList) noexcept{
+TwoLinkedList<ValueType>& TwoLinkedList<ValueType>::operator=(TwoLinkedList&& moveList) noexcept{
     if (this == &moveList) {
         return *this;
     }
@@ -191,17 +191,17 @@ LinkedList<ValueType>& LinkedList<ValueType>::operator=(LinkedList&& moveList) n
 }
 
 template <typename ValueType>
-LinkedList<ValueType>::~LinkedList(){
+TwoLinkedList<ValueType>::~TwoLinkedList(){
     forceNodeDelete(_head);
 }
 
 template <typename ValueType>
-ValueType& LinkedList<ValueType>::operator[](const size_t pos) const{
+ValueType& TwoLinkedList<ValueType>::operator[](const size_t pos) const{
     return getNode(pos)->value;
 }
 
 template <typename ValueType>
-typename LinkedList<ValueType>::Node* LinkedList<ValueType>::getNode(const size_t pos) const{
+typename TwoLinkedList<ValueType>::Node* TwoLinkedList<ValueType>::getNode(const size_t pos) const{
     if (pos < 0) {
         throw std::out_of_range("Index of required node is "
                                 "out of range\n");
@@ -229,7 +229,7 @@ typename LinkedList<ValueType>::Node* LinkedList<ValueType>::getNode(const size_
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::insert(const size_t pos, const ValueType& value){
+void TwoLinkedList<ValueType>::insert(const size_t pos, const ValueType& value){
     if (pos < 0) {
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
@@ -252,13 +252,13 @@ void LinkedList<ValueType>::insert(const size_t pos, const ValueType& value){
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::insertAfterNode(Node* node, const ValueType& value){
+void TwoLinkedList<ValueType>::insertAfterNode(Node* node, const ValueType& value){
     node->insertNext(value);
     ++_size;
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::pushBack(const ValueType& value){
+void TwoLinkedList<ValueType>::pushBack(const ValueType& value){
     if (_size == 0) {
         pushFront(value);
     }
@@ -271,7 +271,7 @@ void LinkedList<ValueType>::pushBack(const ValueType& value){
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::pushFront(const ValueType& value){
+void TwoLinkedList<ValueType>::pushFront(const ValueType& value){
     ++_size;
     if(_size == 1){
         _head = new Node(value, _head);
@@ -286,12 +286,12 @@ void LinkedList<ValueType>::pushFront(const ValueType& value){
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::remove(const size_t pos){
+void TwoLinkedList<ValueType>::remove(const size_t pos){
     if (pos < 0) {
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
     }
-    else if (pos > this->_size) {
+    else if (pos >= this->_size) {
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
     }
@@ -309,12 +309,12 @@ void LinkedList<ValueType>::remove(const size_t pos){
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::removeNextNode(Node* node){
+void TwoLinkedList<ValueType>::removeNextNode(Node* node){
     node->removeNext();
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::removeFront(){
+void TwoLinkedList<ValueType>::removeFront(){
     Node* bufNode = _head->next;
     delete _head;
     _head = bufNode;
@@ -322,7 +322,7 @@ void LinkedList<ValueType>::removeFront(){
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::removeBack() {
+void TwoLinkedList<ValueType>::removeBack() {
     Node* bufNode = _tail;
     _tail = bufNode->previous;
     _tail->next = nullptr;
@@ -330,7 +330,7 @@ void LinkedList<ValueType>::removeBack() {
     --_size;
 }
 template <typename ValueType>
-long long int LinkedList<ValueType>::findIndex(const ValueType& value) const{
+long long int TwoLinkedList<ValueType>::findIndex(const ValueType& value) const{
     Node* bufNode = this->_head;
     for (size_t i = 0; i < _size; ++i) {
         if(bufNode->value == value)
@@ -340,7 +340,7 @@ long long int LinkedList<ValueType>::findIndex(const ValueType& value) const{
     return -1;
 }
 template <typename ValueType>
-typename LinkedList<ValueType>::Node* LinkedList<ValueType>::findNode(const ValueType& value) const{
+typename TwoLinkedList<ValueType>::Node* TwoLinkedList<ValueType>::findNode(const ValueType& value) const{
     Node* bufNode = this->_head;
     for (size_t i = 0; i < _size; ++i) {
         if(bufNode->value == value)
@@ -351,7 +351,7 @@ typename LinkedList<ValueType>::Node* LinkedList<ValueType>::findNode(const Valu
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::reverse(){
+void TwoLinkedList<ValueType>::reverse(){
     if(_size > 1){
         Node* bufNode = _tail;
         //Поменяем местами хвост и голову
@@ -368,26 +368,26 @@ void LinkedList<ValueType>::reverse(){
 }
 
 template <typename ValueType>
-LinkedList<ValueType> LinkedList<ValueType>::reverse() const{
-    LinkedList result = *this;
+TwoLinkedList<ValueType> TwoLinkedList<ValueType>::reverse() const{
+    TwoLinkedList result = *this;
     result.reverse();
     return result;
 }
 
 template <typename ValueType>
-LinkedList<ValueType> LinkedList<ValueType>::getReverseList() const{
-    LinkedList result = *this;
+TwoLinkedList<ValueType> TwoLinkedList<ValueType>::getReverseList() const{
+    TwoLinkedList result = *this;
     result.reverse();
     return result;
 }
 
 template <typename ValueType>
-size_t LinkedList<ValueType>::size() const{
+size_t TwoLinkedList<ValueType>::size() const{
     return _size;
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::forceNodeDelete(Node* node){
+void TwoLinkedList<ValueType>::forceNodeDelete(Node* node){
     if (node == nullptr) {
         return;
     }
@@ -399,7 +399,7 @@ void LinkedList<ValueType>::forceNodeDelete(Node* node){
 
 
 template <typename ValueType>
-void LinkedList<ValueType>::insert(const size_t pos, LinkedList::Node *node) {
+void TwoLinkedList<ValueType>::insert(const size_t pos, TwoLinkedList::Node *node) {
     if (pos < 0) {
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
@@ -421,7 +421,7 @@ void LinkedList<ValueType>::insert(const size_t pos, LinkedList::Node *node) {
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::pushBackNode(LinkedList::Node *node) {
+void TwoLinkedList<ValueType>::pushBackNode(TwoLinkedList::Node *node) {
     if (_size == 0) {
         pushFrontNode(node);
     }
@@ -434,7 +434,7 @@ void LinkedList<ValueType>::pushBackNode(LinkedList::Node *node) {
 }
 
 template <typename ValueType>
-void LinkedList<ValueType>::pushFrontNode(LinkedList::Node *node) {
+void TwoLinkedList<ValueType>::pushFrontNode(TwoLinkedList::Node *node) {
     Node *tmp = _head;
     _head = node;
     _head->next = tmp;
