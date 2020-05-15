@@ -272,7 +272,7 @@ void LinkedList<ValueType>::remove(const size_t pos){
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
     }
-    else if (pos > this->_size) {
+    else if (pos >= this->_size) {
         throw std::out_of_range("Index of required position is "
                                 "out of range\n");
     }
